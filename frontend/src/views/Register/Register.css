@@ -1,0 +1,30 @@
+.register input {
+  width: 100px;
+  margin: 10px;
+}
+
+/* submit */
+.register input[type="text"] {
+  width: 300px;
+}
+.register input[type="password"] {
+  width: 300px;
+}
+.register input[type="submit"] {
+  width: 200px;
+}
+
+.register {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: var(--dl-color-secondary-grey400);
+  height: 100%;
+}
+
+.register form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+}
