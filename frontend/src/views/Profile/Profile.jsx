@@ -20,6 +20,21 @@ const Profile = () => {
     await updateProfile({ displayName: `${firstName} ${secondName}` });
     setDisplayName("");
   };
+  const handleDelete = async (id) => {
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_SERVER_IP}/visits/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (res.ok) {
+      console.log("Deleted");
+      setData(data.filter((visit) => visit._id !== id));
+    } else {
+      console.log("Error");
+    }
+  };
+
   useEffect(() => {
     const fetchVisits = async () => {
       const response = await fetch(
@@ -106,8 +121,24 @@ const Profile = () => {
         {data &&
           data.map((visit) => (
             <div className="visit" key={visit._id}>
-              <p>{visit._id}</p>
-              <p>{doctors.name}</p>
+              {doctors.map((doctor) => {
+                if (doctor._id === visit.doctorId) {
+                  return (
+                    <>
+                      <p>{`Doktor: ${doctor.name} ${doctor.surname}`}</p>
+                      <p>{`Specializacja: ${doctor.specialization}`}</p>
+                    </>
+                  );
+                }
+              })}
+              <p>
+                Data wizyty: {new Date(visit.visitDate).toLocaleDateString()}
+              </p>
+              <p>
+                Godzina wizyty:{" "}
+                {new Date(visit.visitDate).toLocaleTimeString().substring(0, 5)}
+              </p>
+              <button onClick={() => handleDelete(visit._id)}>Anuluj</button>
             </div>
           ))}
       </div>

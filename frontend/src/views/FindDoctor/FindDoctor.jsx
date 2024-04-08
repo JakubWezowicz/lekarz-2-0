@@ -42,6 +42,7 @@ const FindDoctor = () => {
   const [visitInfo, setVisitInfo] = useState({
     reserved: false,
     doctorId: "",
+    visitDate: null,
   });
   useEffect(() => {
     // print collection from firebase
@@ -93,26 +94,36 @@ const FindDoctor = () => {
       const getDoctors = async () => {
         setMatchedDoctors([]);
         data.map(async (doctor) => {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&city=${doctor.city}`
-          );
-          const loc2 = await response.json();
-          if (loc1.length === 0 || loc2.length === 0) {
-            setError("Nie znaleziono miasta");
-            return;
-          }
-          setError(null);
-          const distance2 = distanceBetweenCities(
-            loc1[0].lon,
-            loc1[0].lat,
-            loc2[0].lon,
-            loc2[0].lat
-          );
           if (
-            distance2 <= parseInt(distance) &&
-            doctor.specialization === selectedSpecialization
+            doctor.specialization === selectedSpecialization &&
+            doctor.city.toLowerCase() === city.toLowerCase()
           ) {
             setMatchedDoctors((prev) => [...prev, doctor]);
+          } else if (
+            doctor.specialization === selectedSpecialization &&
+            doctor.city.toLowerCase() !== city.toLowerCase()
+          ) {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&city=${doctor.city}`
+            );
+            const loc2 = await response.json();
+            if (loc1.length === 0 || loc2.length === 0) {
+              setError("Nie znaleziono miasta");
+              return;
+            }
+            setError(null);
+            const distance2 = distanceBetweenCities(
+              loc1[0].lon,
+              loc1[0].lat,
+              loc2[0].lon,
+              loc2[0].lat
+            );
+            if (
+              distance2 <= parseInt(distance) &&
+              doctor.specialization === selectedSpecialization
+            ) {
+              setMatchedDoctors((prev) => [...prev, doctor]);
+            }
           }
         });
       };
@@ -121,7 +132,8 @@ const FindDoctor = () => {
       setError("Błąd podczas pobierania danych");
     }
   };
-  const setVisit = async (id) => {
+  const setVisit = async (id, visitDate) => {
+    console.log(visitDate);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_SERVER_IP}/visits`,
@@ -133,6 +145,7 @@ const FindDoctor = () => {
           body: JSON.stringify({
             patientId: user.uid,
             doctorId: id,
+            visitDate: visitDate,
           }),
         }
       );
@@ -143,6 +156,7 @@ const FindDoctor = () => {
       return;
     }
     setVisitInfo({
+      ...visitInfo,
       reserved: true,
       doctorId: id,
     });
@@ -202,11 +216,40 @@ const FindDoctor = () => {
                 <p>{doctor.city}</p>
                 <br />
                 <p>Na kiedy?</p>
-                <input type="date" />
+                <input
+                  type="date"
+                  onChange={(e) =>
+                    setVisitInfo({
+                      ...visitInfo,
+                      visitDate: new Date(e.target.value).toISOString(),
+                    })
+                  }
+                />
+                {visitInfo.visitDate && (
+                  <>
+                    <p>Na którą godzinę?</p>
+                    <input
+                      type="time"
+                      onChange={(e) => {
+                        const selectedTime = e.target.value;
+                        const currentDate = new Date(visitInfo.visitDate);
+                        const hoursMinutes = selectedTime.split(":");
+                        currentDate.setHours(hoursMinutes[0]);
+                        currentDate.setMinutes(hoursMinutes[1]);
+
+                        setVisitInfo({
+                          ...visitInfo,
+                          visitDate: currentDate.toISOString(),
+                        });
+                      }}
+                    />
+                  </>
+                )}
+
                 <button
                   onClick={(e) => {
                     e.target.disabled = true;
-                    setVisit(doctor._id);
+                    setVisit(doctor._id, visitInfo.visitDate);
                   }}
                 >
                   Umów się z lekarzem

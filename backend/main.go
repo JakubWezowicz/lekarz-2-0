@@ -46,6 +46,7 @@ func main (){
 	router.Get("/doctors/{id}", handlers.HandleGetDoctor)
 	router.Post("/visits", handlers.HandleCreateVisit)
 	router.Get("/visits/{id}", handlers.HandleGetVisit)
+	router.Delete("/visits/{id}", handlers.HandleDeleteVisit)
 	fmt.Printf("Server is running on port %s", PORT)
 	err := http.ListenAndServe(PORT, router)
 	if err != nil {

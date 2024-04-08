@@ -3,3 +3,20 @@
   flex-direction: row;
   background-color: var(--dl-color-secondary-grey400);
 }
+
+.visit {
+  background-color: gold;
+  margin: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.visit button {
+  background-color: red;
+  border-radius: 3px;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+}

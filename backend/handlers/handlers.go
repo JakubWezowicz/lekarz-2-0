@@ -28,12 +28,15 @@ type Doctor struct {
 type NewVisit struct {
 	PatientId string `json:"patientId,omitempty" bson:"patientId,omitempty"`
 	DoctorId string `json:"doctorId,omitempty" bson:"doctorId,omitempty"`
+	VisitDate string `json:"visitDate,omitempty" bson:"visitDate,omitempty"`
 }
 
 type Visit struct {
 	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	PatientId string `json:"patientId,omitempty" bson:"patientId,omitempty"`
 	DoctorId string `json:"doctorId,omitempty" bson:"doctorId,omitempty"`
+	CreatedDate time.Time `json:"createdDate,omitempty" bson:"createdDate,omitempty"`
+	VisitDate time.Time `json:"visitDate,omitempty" bson:"visitDate,omitempty"`
 }
 
 var client *mongo.Client
@@ -106,13 +109,25 @@ func HandleCreateVisit (w http.ResponseWriter, r *http.Request){
 		fmt.Fprint(w, err)
 		return
 	}
-
+    // Sprawdzenie czy wizyta zawiera datę
+    if newVisit.VisitDate == "" {
+        http.Error(w, "Missing visit date", http.StatusBadRequest)
+        return
+    }
+	fmt.Println(newVisit)
+    // Parsowanie czasu z formatu tekstowego na obiekt time.Time
+    visitDate, err := time.Parse("2006-01-02T15:04:05Z07:00", newVisit.VisitDate)
+    if err != nil {
+        http.Error(w, "Invalid visit date format", http.StatusBadRequest)
+        return
+    }
 	// post visit
 	visitsCollection := client.Database("lekarz-2-0").Collection("visits")
 	visit := bson.M{
 		"patientId": newVisit.PatientId,
 		"doctorId": newVisit.DoctorId,
 		"createdDate": time.Now(),
+		"visitDate": visitDate,
 	}
 	_, err = visitsCollection.InsertOne(ctx, visit)
 	if err != nil {
@@ -177,5 +192,28 @@ func HandleGetDoctor (w http.ResponseWriter, r *http.Request){
 		fmt.Fprint(w, err)
 		return
 	}
+	fmt.Fprint(w, string(json))
+}
+
+func HandleDeleteVisit (w http.ResponseWriter, r *http.Request){
+	// get id from url
+	id := chi.URLParam(r, "id")
+	// connection mongodb
+
+	// delete visit
+	visitsCollection := client.Database("lekarz-2-0").Collection("visits")
+	// convert id to ObjectID
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Fprint(w, err)
+		return
+	}
+	_, err = visitsCollection.DeleteOne(ctx, bson.M{"_id": objID})
+	if err != nil {
+		fmt.Fprint(w, err)
+		return
+	}
+	json, _ := json.Marshal("Visit deleted")
+		
 	fmt.Fprint(w, string(json))
 }
