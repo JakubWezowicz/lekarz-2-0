@@ -8,6 +8,7 @@ const Profile = () => {
   const [user] = useAuthState(auth);
   const [updateProfile] = useUpdateProfile(auth);
   const [displayName, setDisplayName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const handleSubmit = async (e) => {
@@ -37,6 +38,7 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchVisits = async () => {
+      setIsLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/visits/${user.uid}`,
         {
@@ -49,6 +51,7 @@ const Profile = () => {
       const data = await response.json();
       setData(data);
       console.log(data);
+      setIsLoading(false);
     };
     if (!user) {
       navigate("/");
@@ -88,23 +91,27 @@ const Profile = () => {
   return (
     <div className="profile">
       <div className="profile-info">
-        <h1>Profile</h1>
-        {user?.displayName && (
-          <>
-            <img
-              src={`https://ui-avatars.com/api/?name=${user.displayName}`}
-              alt="avatar"
-              style={{
-                borderRadius: "50%",
-                width: "50px",
-                height: "50px",
-              }}
-            />
-            <h2>Witaj, {user?.displayName}</h2>
-          </>
-        )}
-        <h2>{user?.email}</h2>
+        <div className="profile-data">
+          <h1>Twój profil użytkownika</h1>
+          {user?.displayName && (
+            <>
+              <img
+                src={`https://ui-avatars.com/api/?name=${user.displayName}`}
+                alt="avatar"
+                style={{
+                  borderRadius: "50%",
+                  width: "50px",
+                  height: "50px",
+                }}
+              />
+              <h2>Witaj, {user?.displayName}</h2>
+            </>
+          )}
+          <h3>Twój mail: {user?.email}</h3>
+        </div>
+
         <div className="edit-profile">
+          <h2>Edytuj profil:</h2>
           <form onSubmit={handleSubmit}>
             <input
               type="text"
@@ -112,35 +119,48 @@ const Profile = () => {
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Podaj imię i nazwisko"
             />
+            <label htmlFor="input">
+              Wypełnij aby zmienić nazwe uzytkownika
+            </label>
             <input type="submit" value="Zmien" />
           </form>
         </div>
       </div>
       <div className="visits">
-        <h2>Twoje wizyty</h2>
-        {data &&
-          data.map((visit) => (
-            <div className="visit" key={visit._id}>
-              {doctors.map((doctor) => {
-                if (doctor._id === visit.doctorId) {
-                  return (
-                    <>
-                      <p>{`Doktor: ${doctor.name} ${doctor.surname}`}</p>
-                      <p>{`Specializacja: ${doctor.specialization}`}</p>
-                    </>
-                  );
-                }
-              })}
-              <p>
-                Data wizyty: {new Date(visit.visitDate).toLocaleDateString()}
-              </p>
-              <p>
-                Godzina wizyty:{" "}
-                {new Date(visit.visitDate).toLocaleTimeString().substring(0, 5)}
-              </p>
-              <button onClick={() => handleDelete(visit._id)}>Anuluj</button>
-            </div>
-          ))}
+        <h2>Twoje wizyty:</h2>
+        {isLoading && <p>Loading...</p>}
+
+        <div className="visits-list">
+          {data &&
+            data.map((visit) => (
+              <div className="visit" key={visit._id}>
+                {doctors.map((doctor) => {
+                  if (doctor._id === visit.doctorId) {
+                    return (
+                      <>
+                        <p>
+                          Doktor: <b>{`${doctor.name} ${doctor.surname}`}</b>
+                        </p>
+                        <p>{`Specializacja: ${doctor.specialization}`}</p>
+                      </>
+                    );
+                  }
+                })}
+                <p>
+                  Data wizyty: {new Date(visit.visitDate).toLocaleDateString()}
+                </p>
+                <p>
+                  Godzina wizyty:{" "}
+                  {new Date(visit.visitDate)
+                    .toLocaleTimeString()
+                    .substring(0, 5)}
+                </p>
+                <button onClick={() => handleDelete(visit._id)}>
+                  Anuluj wizytę
+                </button>
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   );

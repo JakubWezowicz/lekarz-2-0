@@ -1,15 +1,25 @@
 .profile {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   background-color: var(--dl-color-secondary-grey400);
 }
 
+.visits-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.visits {
+  display: flex;
+  flex-direction: column;
+}
 .visit {
-  background-color: gold;
-  margin: 10px;
+  background-color: var(--dl-color-primary1-blue80);
+  color: white;
+  margin: 30px;
   padding: 10px;
   display: flex;
   flex-direction: column;
+  border-radius: 3px;
 }
 .visit button {
   background-color: red;
@@ -19,4 +29,25 @@
   padding: 10px;
   margin: 10px;
   cursor: pointer;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: row;
+}
+
+.edit-profile {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+}
+
+.edit-profile input[type="submit"] {
+  display: block;
+  background-color: var(--dl-color-primary1-blue80);
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px 0;
+  color: white;
 }

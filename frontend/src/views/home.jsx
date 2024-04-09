@@ -16,20 +16,11 @@ import { auth } from "../firebase/config";
 
 const Home = () => {
   const [user] = useAuthState(auth);
-  const [showModal, setShowModal] = useState(false);
-  useEffect(() => {
-    if (user) {
-      setShowModal(true);
-      setTimeout(() => {
-        setShowModal(false);
-      }, 1500);
-    }
-  }, [user]);
   return (
     <div className="home-container">
       <Helmet>
-        <title>Noteworthy Masculine Chough</title>
-        <meta property="og:title" content="Noteworthy Masculine Chough" />
+        <title>Lekarz 2.0</title>
+        <meta property="og:title" content="Lekarz 2.0" />
       </Helmet>
       <div className="home-hero">
         <div className="home-hero1">
@@ -288,24 +279,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
-      {showModal &&
-        createPortal(
-          <Modal>
-            <div
-              style={{
-                backgroundColor: "green",
-                padding: "10px",
-                borderRadius: "3px",
-                color: "white",
-                fontSize: "20px",
-              }}
-            >
-              <p>Zalogowano</p>
-            </div>
-          </Modal>,
-          document.body
-        )}
     </div>
   );
 };
