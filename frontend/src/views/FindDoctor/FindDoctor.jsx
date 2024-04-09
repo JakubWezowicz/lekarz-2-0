@@ -65,7 +65,7 @@ const FindDoctor = () => {
     // getDoctors();
     const getDoctors = async () => {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_SERVER_IP}/doctors`
+        `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/doctors`
       );
       const doctors = await response.json();
       setData(doctors);
@@ -101,7 +101,8 @@ const FindDoctor = () => {
             setMatchedDoctors((prev) => [...prev, doctor]);
           } else if (
             doctor.specialization === selectedSpecialization &&
-            doctor.city.toLowerCase() !== city.toLowerCase()
+            doctor.city.toLowerCase() !== city.toLowerCase() &&
+            distance > 0
           ) {
             const response = await fetch(
               `https://nominatim.openstreetmap.org/search?format=json&city=${doctor.city}`
@@ -136,7 +137,7 @@ const FindDoctor = () => {
     console.log(visitDate);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_SERVER_IP}/visits`,
+        `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/visits`,
         {
           method: "POST",
           headers: {
