@@ -8,7 +8,7 @@ const Navbar = () => {
     await signOut();
   };
   return (
-    <div className="home-header">
+    <div className="home-header" style={{ zIndex: "1" }}>
       <header data-thq="thq-navbar" className="home-navbar-interactive">
         <Link to={"/"}>
           <img src="/logo_lekarz.png" alt="logo strony" id="logo" />
@@ -87,7 +87,7 @@ const Navbar = () => {
                 </svg>
               </div>
             </div>
-            <nav className="home-links1" style={{ zIndex: "9999" }}>
+            <nav className="home-links1">
               <Link to={"/"}>
                 <span className="home-nav11">Strona Główna</span>
               </Link>
@@ -98,10 +98,49 @@ const Navbar = () => {
                 <span className="home-nav41">Kontakt</span>
               </Link>
             </nav>
-            <div className="home-buttons1">
-              <button className="home-login1 button">Login</button>
-              <button className="home-register1 button">Register</button>
-            </div>
+            {user && (
+              <div className="home-buttons">
+                <button className="home-login button" onClick={handleLogOut}>
+                  Wyloguj
+                </button>
+                {user.displayName && (
+                  <Link to={"/profile"}>
+                    <img
+                      src={`https://ui-avatars.com/api/?name=${user.displayName}`}
+                      alt="avatar"
+                      style={{
+                        borderRadius: "50%",
+                        width: "50px",
+                        height: "50px",
+                      }}
+                    />
+                  </Link>
+                )}
+                {!user.displayName && (
+                  <Link to={"/profile"}>
+                    <img
+                      src={`https://ui-avatars.com/api/?name=${user.email}`}
+                      alt="avatar"
+                      style={{
+                        borderRadius: "50%",
+                        width: "50px",
+                        height: "50px",
+                      }}
+                    />
+                  </Link>
+                )}
+              </div>
+            )}
+            {!user && (
+              <div className="home-buttons">
+                <Link to={"/login"} className="home-login button">
+                  Zaloguj
+                </Link>
+                <Link to={"/register"} className="home-register button">
+                  Zarejestruj
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>

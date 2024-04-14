@@ -45,27 +45,10 @@ const FindDoctor = () => {
     visitDate: null,
   });
   useEffect(() => {
-    // print collection from firebase
     setIsLoading(true);
-    // const getDoctors = async () => {
-    //   try {
-    //     const response = await fetch("http://localhost:8000/doctors");
-    //     const doctors = await response.json();
-    //     setData(doctors);
-    //     setSelectedSpecialization(doctors[0].specialization);
-    //     setSpecializations([
-    //       ...new Set(doctors.map((doctor) => doctor.specialization)),
-    //     ]);
-    //   } catch (err) {
-    //     setError("Błąd podczas pobierania danych");
-    //   }
-
-    //   setIsLoading(false);
-    // };
-    // getDoctors();
     const getDoctors = async () => {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/doctors`
+        `${process.env.REACT_APP_BACKEND_SERVER_IP}/doctors`
       );
       const doctors = await response.json();
       setData(doctors);
@@ -85,7 +68,7 @@ const FindDoctor = () => {
   }, [user]);
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&city=${city}`
@@ -93,6 +76,7 @@ const FindDoctor = () => {
       const loc1 = await response.json();
       const getDoctors = async () => {
         setMatchedDoctors([]);
+
         data.map(async (doctor) => {
           if (
             doctor.specialization === selectedSpecialization &&
@@ -128,7 +112,7 @@ const FindDoctor = () => {
           }
         });
       };
-      await getDoctors();
+      await getDoctors().then(() => setIsLoading(false));
     } catch (err) {
       setError("Błąd podczas pobierania danych");
     }
@@ -137,7 +121,7 @@ const FindDoctor = () => {
     console.log(visitDate);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/visits`,
+        `${process.env.REACT_APP_BACKEND_SERVER_IP}/visits`,
         {
           method: "POST",
           headers: {
@@ -176,37 +160,36 @@ const FindDoctor = () => {
 
         {isLoading && <p>Loading...</p>}
         {error && <p>{error}</p>}
-        {!isLoading && (
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="city"
-              placeholder="Podaj miasto"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-            <p>{distance} km</p>
-            <input
-              type="range"
-              name="distance"
-              onChange={(e) => setDistance(e.target.value)}
-              value={distance}
-            />
-            <select
-              onChange={(e) => setSelectedSpecialization(e.target.value)}
-              value={selectedSpecialization}
-            >
-              {specializations.map((specialization) => (
-                <option key={specialization}>{specialization}</option>
-              ))}
-            </select>
-            <input type="submit" value="Znajdź Lekarza" />
-          </form>
-        )}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="city"
+            placeholder="Podaj miasto"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            disabled={isLoading}
+          />
+          <p>{distance} km</p>
+          <input
+            type="range"
+            name="distance"
+            onChange={(e) => setDistance(e.target.value)}
+            value={distance}
+          />
+          <select
+            onChange={(e) => setSelectedSpecialization(e.target.value)}
+            value={selectedSpecialization}
+          >
+            {specializations.map((specialization) => (
+              <option key={specialization}>{specialization}</option>
+            ))}
+          </select>
+          <input type="submit" value="Znajdź Lekarza" />
+        </form>
       </div>
-      {matchedDoctors && !isLoading && (
-        <div className="matchedDoctors-list">
-          <h3>Dostępni lekarze</h3>
+      <div className="matchedDoctors-list">
+        <h3>Dostępni lekarze</h3>
+        {matchedDoctors && (
           <ul>
             {matchedDoctors.map((doctor) => (
               <li key={doctor._id} className="doctor-card">
@@ -261,8 +244,8 @@ const FindDoctor = () => {
               </li>
             ))}
           </ul>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

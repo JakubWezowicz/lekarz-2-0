@@ -23,7 +23,7 @@ const Profile = () => {
   };
   const handleDelete = async (id) => {
     const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/visits/${id}`,
+        `${process.env.REACT_APP_BACKEND_SERVER_IP}/visits/${id}`,
       {
         method: "DELETE",
       }
@@ -40,7 +40,7 @@ const Profile = () => {
     const fetchVisits = async () => {
       setIsLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/visits/${user.uid}`,
+        `${process.env.REACT_APP_BACKEND_SERVER_IP}/visits/${user.uid}`,
         {
           method: "GET",
           headers: {
@@ -63,7 +63,7 @@ const Profile = () => {
     // get doctors info from id
     const getDoctor = async (id) => {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_SERVER_DEV_IP}/doctors/${id}`,
+        `${process.env.REACT_APP_BACKEND_SERVER_IP}/doctors/${id}`,
         {
           method: "GET",
           headers: {
